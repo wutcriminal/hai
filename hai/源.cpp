@@ -3,6 +3,7 @@
 #include <conio.h>
 #include <time.h>
 #include <string>
+#include <easyx.h>
 
 using namespace std;
 //世界大小
@@ -27,43 +28,53 @@ void Evolution();				// 进化
 void button(int x, int y, int w, int h, const wchar_t* text);//按钮
 
 
-
 // 主函数
 int main()
 {
 	Init();
 	int Speed = 700;			// 游戏速度（毫秒）
 	button(754, 18, 150, 40, _T("我是你爹"));
+	ExMessage msg;
+
 
 	while (true)
 	{
-		if (_kbhit() || Speed == 900)
-		{
-			char c = _getch();
+		//if (_kbhit() || Speed == 900)
+		//{
+		//	char c = _getch();
 
-			if (c == ' ' && Speed != 900)
-				c = _getch();
+		//	if (c == ' ' && Speed != 900)
+		//		c = _getch();
 
-			if (c >= '0' && c <= '9')
-				Speed = ('9' - c) * 100;
+		//	if (c >= '0' && c <= '9')
+		//		Speed = ('9' - c) * 100;
 
-			switch (c)
+		//	switch (c)
+		//	{
+		//	case 's':
+		//	case 'S':
+		//		SquareWorld();	// 产生默认的细胞以方形分布的世界
+		//		break;
+
+		//	case 'r':
+		//	case 'R':
+		//		RandWorld();	// 产生默认的细胞以方形分布的世界
+		//		break;
+
+		//	case VK_ESCAPE:
+		//		goto END;
+		//	}
+		//}
+		msg = getmessage(EM_MOUSE);
+			switch (msg.message)
 			{
-			case 's':
-			case 'S':
-				SquareWorld();	// 产生默认的细胞以方形分布的世界
-				break;
-
-			case 'r':
-			case 'R':
-				RandWorld();	// 产生默认的细胞以方形分布的世界
-				break;
-
-			case VK_ESCAPE:
-				goto END;
+			case WM_LBUTTONDOWN: {
+				if (msg.x >= 754 && msg.x <= 754 + 150 && msg.y >= 18 && msg.y <= 18 + 40) {
+					while(1) button(754, 60, 150, 40, _T("我是你爹"));
+				}
+				}
 			}
-		}
-
+		
 		Evolution();			// 进化
 		PaintWorld();			// 绘制世界
 
