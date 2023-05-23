@@ -9,9 +9,11 @@ using namespace std;
 //世界大小
 const int WORLDSIZE = 102;
 //单个点的大小
-const int POINTSIZE = 5;
+const int POINTSIZE = 8;
 //点之间的距离
-const int INTERVAL = 5;
+const int INTERVAL = POINTSIZE;
+//世界的左上角坐标(x,y)
+const int APEX[2] = { 56,56 };
 
 //基类，存储一些函数接口
 class base {
@@ -31,8 +33,8 @@ public:
 
 	BUTTON(int x, int y, int w, int h, const wchar_t* text);
 	~BUTTON();
-	void paint();
-	void buttonclicked();
+	void paint();        //绘制按钮
+	void buttonclicked();//按钮响应事件
 };
 
 
@@ -88,16 +90,29 @@ int main()
 		//		goto END;
 		//	}
 		//}
-		while (peekmessage(&m, EM_MOUSE)) {
-			if (m.message == WM_LBUTTONDOWN) {
-				if (m.x >= test.x && m.x <= test.x + test.w && m.y >= test.y && m.y <= test.y + test.h) {
-					test.buttonclicked();
-				}
-			}
-		}
+
 
 		Evolution();			// 进化
 		PaintWorld();			// 绘制世界
+
+
+		//响应鼠标的操作
+		while (peekmessage(&m, EM_MOUSE)) {
+			switch (m.message) {
+			case WM_LBUTTONDOWN: {
+				if (m.x >= APEX[0] && m.x <= (APEX[0] + WORLDSIZE * POINTSIZE) && m.y >= APEX[1] && m.y <= (APEX[1] + WORLDSIZE * POINTSIZE)) {
+					int index[2] = { (m.x - APEX[0]) / POINTSIZE ,(m.y - APEX[1]) / POINTSIZE };
+					world[index[0]][index[1]] = world[index[0]][index[1]] ? 0 : 1;
+					putimage(APEX[0] + index[0] * INTERVAL, APEX[1] + index[1] * INTERVAL, world[index[0]][index[1]] ? &imgLive : &imgEmpty);
+					
+				}
+				if (m.x >= test.x && m.x <= test.x + test.w && m.y >= test.y && m.y <= test.y + test.h) {
+					test.buttonclicked();
+				}
+
+			}
+			}
+		}
 
 		if (Speed != 900)		// 速度为 900 时，为按任意键单步执行
 			Sleep(Speed);
@@ -178,7 +193,7 @@ void PaintWorld()
 {
 	for (int x = 1; x < WORLDSIZE - 1; x++)
 		for (int y = 1; y < WORLDSIZE - 1; y++)
-			putimage(56 + x * INTERVAL, 56 + y * INTERVAL, world[x][y] ? &imgLive : &imgEmpty);
+			putimage(APEX[0] + x * INTERVAL, APEX[1] + y * INTERVAL, world[x][y] ? &imgLive : &imgEmpty);
 }
 
 // 进化
