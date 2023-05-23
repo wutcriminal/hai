@@ -13,6 +13,29 @@ const int POINTSIZE = 5;
 //点之间的距离
 const int INTERVAL = 5;
 
+//基类，存储一些函数接口
+class base {
+	virtual void buttonclicked() = 0;
+};
+
+
+//按钮类
+class BUTTON:base{
+private:
+public:
+	int x;
+	int y;
+	int w;
+	int h;
+	const wchar_t* text;
+
+	BUTTON(int x, int y, int w, int h, const wchar_t* text);
+	~BUTTON();
+	void paint();
+	void buttonclicked();
+};
+
+
 // 定义全局变量
 __int8 world[WORLDSIZE][WORLDSIZE] = { 0 };	// 定义二维世界
 IMAGE imgLive, imgEmpty;		// 定义活细胞和无细胞区域的图案
@@ -25,7 +48,6 @@ void SquareWorld();				// 创建一个细胞以方形分布的世界
 void RandWorld();				// 创建一个细胞随机分布的世界
 void PaintWorld();				// 绘制世界
 void Evolution();				// 进化
-void button(int x, int y, int w, int h, const wchar_t* text);//按钮
 
 
 
@@ -35,7 +57,7 @@ int main()
 	Init();
 	int Speed = 700;			// 游戏速度（毫秒）
 	int x = 754, y = 18, w = 150, h = 40;
-	button(x,y,w,h, _T("我是你爹"));
+	BUTTON test(x,y,w,h, _T("我是你爹"));
 	ExMessage m;
 
 	while (true)
@@ -68,9 +90,8 @@ int main()
 		//}
 		while (peekmessage(&m, EM_MOUSE)) {
 			if (m.message == WM_LBUTTONDOWN) {
-				if (m.x >= x && m.x <= x + 150 && m.y >= y && m.y <= y + 40) {
-					y += h;
-					button(x,y,w,h, _T("我是你爹"));
+				if (m.x >= test.x && m.x <= test.x + test.w && m.y >= test.y && m.y <= test.y + test.h) {
+					test.buttonclicked();
 				}
 			}
 		}
@@ -188,9 +209,26 @@ void Evolution()
 	memcpy(world, tmp, WORLDSIZE * WORLDSIZE * sizeof(__int8));
 }
 
-//按钮
-void button(int x, int y, int w, int h, const wchar_t* text)
+
+
+
+
+//按钮类的构造函数
+BUTTON::BUTTON(int x, int y, int w, int h, const wchar_t* text)
 {
+	this->x = x;
+	this->y = y;
+	this->w = w;
+	this->h = h;
+	this->text = text;
+	paint();
+}
+
+BUTTON::~BUTTON() {
+	clearrectangle(x, y, x + w, y + h);
+}
+
+void BUTTON::paint() {
 	setbkmode(TRANSPARENT);
 	setfillcolor(GREEN);
 	fillroundrect(x, y, x + w, y + h, 10, 10);
@@ -202,4 +240,10 @@ void button(int x, int y, int w, int h, const wchar_t* text)
 
 	outtextxy(tx, ty, text);
 
+}
+
+void BUTTON::buttonclicked() {
+	clearrectangle(x, y, x + w, y + h);
+	y += h;
+	paint();
 }
