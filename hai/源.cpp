@@ -28,6 +28,7 @@ void Evolution();				// 进化
 void button(int x, int y, int w, int h, const wchar_t* text);//按钮
 
 
+
 // 主函数
 int main()
 {
@@ -72,9 +73,9 @@ int main()
 				if (msg.x >= 754 && msg.x <= 754 + 150 && msg.y >= 18 && msg.y <= 18 + 40) {
 					while(1) button(754, 60, 150, 40, _T("我是你爹"));
 				}
-				}
 			}
-		
+		}
+
 		Evolution();			// 进化
 		PaintWorld();			// 绘制世界
 
