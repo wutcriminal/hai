@@ -34,9 +34,9 @@ int main()
 {
 	Init();
 	int Speed = 700;			// 游戏速度（毫秒）
-	button(754, 18, 150, 40, _T("我是你爹"));
-	ExMessage msg;
-
+	int x = 754, y = 18, w = 150, h = 40;
+	button(x,y,w,h, _T("我是你爹"));
+	ExMessage m;
 
 	while (true)
 	{
@@ -66,12 +66,11 @@ int main()
 		//		goto END;
 		//	}
 		//}
-		msg = getmessage(EM_MOUSE);
-			switch (msg.message)
-			{
-			case WM_LBUTTONDOWN: {
-				if (msg.x >= 754 && msg.x <= 754 + 150 && msg.y >= 18 && msg.y <= 18 + 40) {
-					while(1) button(754, 60, 150, 40, _T("我是你爹"));
+		while (peekmessage(&m, EM_MOUSE)) {
+			if (m.message == WM_LBUTTONDOWN) {
+				if (m.x >= x && m.x <= x + 150 && m.y >= y && m.y <= y + 40) {
+					y += h;
+					button(x,y,w,h, _T("我是你爹"));
 				}
 			}
 		}
