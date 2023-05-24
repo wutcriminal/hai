@@ -15,14 +15,9 @@ const int INTERVAL = POINTSIZE;
 //世界的左上角坐标(x,y)
 const int APEX[2] = { 56,56 };
 
-//基类，存储一些函数接口
-class base {
-	virtual void buttonclicked() = 0;
-};
-
 
 //按钮类
-class BUTTON:base{
+class BUTTON{
 private:
 public:
 	int x;
@@ -31,17 +26,18 @@ public:
 	int h;
 	const wchar_t* text;
 
-	BUTTON(int x, int y, int w, int h, const wchar_t* text);
+	BUTTON(int x, int y, int w, int h, const wchar_t* text,void (* func)(BUTTON* p));
 	~BUTTON();
 	void paint();        //绘制按钮
-	void buttonclicked();//按钮响应事件
+	//void (*buttonclicked)(int x = this->x, int y = this->y, int w = this->w, int h = this->h, const wchar_t* text = this->text, BUTTON* p = this->p);//按钮响应事件
+	void (*buttonclicked)(BUTTON* s);
 };
 
 
 // 定义全局变量
 __int8 world[WORLDSIZE][WORLDSIZE] = { 0 };	// 定义二维世界
 IMAGE imgLive, imgEmpty;		// 定义活细胞和无细胞区域的图案
-
+bool isPause = false;
 
 
 // 函数声明
@@ -50,7 +46,8 @@ void SquareWorld();				// 创建一个细胞以方形分布的世界
 void RandWorld();				// 创建一个细胞随机分布的世界
 void PaintWorld();				// 绘制世界
 void Evolution();				// 进化
-
+void func_test(BUTTON* p);
+void func_pause(BUTTON* p);
 
 
 // 主函数
@@ -59,7 +56,9 @@ int main()
 	Init();
 	int Speed = 700;			// 游戏速度（毫秒）
 	int x = 754, y = 18, w = 150, h = 40;
-	BUTTON test(x,y,w,h, _T("我是你爹"));
+	int px = 1000, py = 18, pw = 150, ph = 40;
+	BUTTON test(x,y,w,h, _T("我是你爹"),func_test);
+	BUTTON pause(px, py, pw, ph, _T("暂停按钮"), func_pause);
 	ExMessage m;
 
 	while (true)
@@ -67,34 +66,29 @@ int main()
 		//if (_kbhit() || Speed == 900)
 		//{
 		//	char c = _getch();
-
 		//	if (c == ' ' && Speed != 900)
 		//		c = _getch();
-
 		//	if (c >= '0' && c <= '9')
 		//		Speed = ('9' - c) * 100;
-
 		//	switch (c)
 		//	{
 		//	case 's':
 		//	case 'S':
 		//		SquareWorld();	// 产生默认的细胞以方形分布的世界
 		//		break;
-
 		//	case 'r':
 		//	case 'R':
 		//		RandWorld();	// 产生默认的细胞以方形分布的世界
 		//		break;
-
 		//	case VK_ESCAPE:
 		//		goto END;
 		//	}
 		//}
 
-
-		Evolution();			// 进化
-		PaintWorld();			// 绘制世界
-
+		if (!isPause) {
+			Evolution();			// 进化
+			PaintWorld();			// 绘制世界
+		}
 
 		//响应鼠标的操作
 		while (peekmessage(&m, EM_MOUSE)) {
@@ -107,7 +101,10 @@ int main()
 					
 				}
 				if (m.x >= test.x && m.x <= test.x + test.w && m.y >= test.y && m.y <= test.y + test.h) {
-					test.buttonclicked();
+					test.buttonclicked(&test);
+				}
+				if (m.x >= pause.x && m.x <= pause.x + pause.w && m.y >= pause.y && m.y <= pause.y + pause.h) {
+					pause.buttonclicked(&pause);
 				}
 
 			}
@@ -229,13 +226,14 @@ void Evolution()
 
 
 //按钮类的构造函数
-BUTTON::BUTTON(int x, int y, int w, int h, const wchar_t* text)
+BUTTON::BUTTON(int x, int y, int w, int h, const wchar_t* text,void (* func)(BUTTON* p))
 {
 	this->x = x;
 	this->y = y;
 	this->w = w;
 	this->h = h;
 	this->text = text;
+	buttonclicked = func;
 	paint();
 }
 
@@ -257,8 +255,19 @@ void BUTTON::paint() {
 
 }
 
-void BUTTON::buttonclicked() {
-	clearrectangle(x, y, x + w, y + h);
-	y += h;
-	paint();
+void func_test(BUTTON* p) {
+	clearrectangle(p->x, p->y, p->x + p->w, p->y + p->h);
+	p->y += p->h;
+	p->paint();
+}
+
+void func_pause(BUTTON* p) {
+	if (isPause) {
+		p->text = _T("暂停按钮");
+	}
+	else {
+		p->text = _T("恢复按钮");
+	}
+	p->paint();
+	isPause = isPause ? false : true;
 }
