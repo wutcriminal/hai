@@ -37,8 +37,9 @@ public:
 // 定义全局变量
 __int8 world[WORLDSIZE][WORLDSIZE] = { 0 };	// 定义二维世界
 IMAGE imgLive, imgEmpty;		// 定义活细胞和无细胞区域的图案
-bool isPause = false;
-bool isStep = false;
+bool isPause = false;			// 是否处于暂停状态
+bool isStep = false;			// 是否处于单步状态
+bool isgoPainted = false;		// go按钮是否已经绘制
 
 
 // 函数声明
@@ -61,8 +62,8 @@ int main()
 	int Speed = 700;			// 游戏速度（毫秒）
 	BUTTON test(750,18,150,40, _T("我是你爹"),func_test);    //一个用来测试的按钮
 	BUTTON pause(950, 18, 150, 40, _T("暂停按钮"), func_pause);  //暂停/恢复按钮，初始化为暂停
-	BUTTON go(1150, 60, 75, 40, _T("更新"), func_go);
-	BUTTON step(1150, 18, 75, 40, _T("单步"), func_step);
+	BUTTON go(1150, 60, 75, 40, _T("更新"), func_go);			//单步模式下的更新按钮
+	BUTTON step(1150, 18, 75, 40, _T("单步"), func_step);		//单步/自动按钮，初始化为单步
 
 
 	ExMessage m;
@@ -124,7 +125,7 @@ int main()
 					step.buttonclicked(&step);
 				}
 
-				//
+				//点击更新按钮
 				if (m.x >= go.x && m.x <= go.x + go.w && m.y >= go.y && m.y <= go.y + go.h && isStep) {
 					go.buttonclicked(&go);
 				}
@@ -137,6 +138,10 @@ int main()
 		if (!isStep) {	// 速度为 900 时，为按任意键单步执行
 			clearrectangle(go.x, go.y, go.x + go.w, go.y + go.h);
 			Sleep(Speed);
+		}
+		else if (!isgoPainted) {
+			go.paint();
+			isgoPainted = true;
 		}
 	}
 
@@ -299,6 +304,7 @@ void func_pause(BUTTON* p) {
 void func_step(BUTTON* p) {
 	if (isStep) {
 		p->text = _T("单步");
+		isgoPainted = false;
 	}
 	else {
 		p->text = _T("自动");
