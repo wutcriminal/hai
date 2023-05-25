@@ -38,6 +38,7 @@ public:
 __int8 world[WORLDSIZE][WORLDSIZE] = { 0 };	// 定义二维世界
 IMAGE imgLive, imgEmpty;		// 定义活细胞和无细胞区域的图案
 bool isPause = false;
+bool isStep = false;
 
 
 // 函数声明
@@ -46,8 +47,11 @@ void SquareWorld();				// 创建一个细胞以方形分布的世界
 void RandWorld();				// 创建一个细胞随机分布的世界
 void PaintWorld();				// 绘制世界
 void Evolution();				// 进化
-void func_test(BUTTON* p);
-void func_pause(BUTTON* p);
+void func_test(BUTTON* p);		// 按钮的测试功能
+void func_pause(BUTTON* p);		// 暂停功能
+void func_go(BUTTON* p);		// 单步状态下走一步
+void func_step(BUTTON* p);		// 切换单步和自动功能
+
 
 
 // 主函数
@@ -55,10 +59,12 @@ int main()
 {
 	Init();
 	int Speed = 700;			// 游戏速度（毫秒）
-	int x = 754, y = 18, w = 150, h = 40;
-	int px = 1000, py = 18, pw = 150, ph = 40;
-	BUTTON test(x,y,w,h, _T("我是你爹"),func_test);
-	BUTTON pause(px, py, pw, ph, _T("暂停按钮"), func_pause);
+	BUTTON test(750,18,150,40, _T("我是你爹"),func_test);    //一个用来测试的按钮
+	BUTTON pause(950, 18, 150, 40, _T("暂停按钮"), func_pause);  //暂停/恢复按钮，初始化为暂停
+	BUTTON go(1150, 60, 75, 40, _T("更新"), func_go);
+	BUTTON step(1150, 18, 75, 40, _T("单步"), func_step);
+
+
 	ExMessage m;
 
 	while (true)
@@ -85,7 +91,7 @@ int main()
 		//	}
 		//}
 
-		if (!isPause) {
+		if (!isPause&&!isStep) {
 			Evolution();			// 进化
 			PaintWorld();			// 绘制世界
 		}
@@ -94,25 +100,44 @@ int main()
 		while (peekmessage(&m, EM_MOUSE)) {
 			switch (m.message) {
 			case WM_LBUTTONDOWN: {
+
+				//点击世界框中的点，改变某个点的生死状态
 				if (m.x >= APEX[0] && m.x <= (APEX[0] + WORLDSIZE * POINTSIZE) && m.y >= APEX[1] && m.y <= (APEX[1] + WORLDSIZE * POINTSIZE)) {
 					int index[2] = { (m.x - APEX[0]) / POINTSIZE ,(m.y - APEX[1]) / POINTSIZE };
 					world[index[0]][index[1]] = world[index[0]][index[1]] ? 0 : 1;
 					putimage(APEX[0] + index[0] * INTERVAL, APEX[1] + index[1] * INTERVAL, world[index[0]][index[1]] ? &imgLive : &imgEmpty);
 					
 				}
+
+				//点击测试按钮
 				if (m.x >= test.x && m.x <= test.x + test.w && m.y >= test.y && m.y <= test.y + test.h) {
 					test.buttonclicked(&test);
 				}
+
+				//点击暂停/恢复按钮
 				if (m.x >= pause.x && m.x <= pause.x + pause.w && m.y >= pause.y && m.y <= pause.y + pause.h) {
 					pause.buttonclicked(&pause);
 				}
+
+				//点击单步/自动按钮
+				if (m.x >= step.x && m.x <= step.x + step.w && m.y >= step.y && m.y <= step.y + step.h) {
+					step.buttonclicked(&step);
+				}
+
+				//
+				if (m.x >= go.x && m.x <= go.x + go.w && m.y >= go.y && m.y <= go.y + go.h && isStep) {
+					go.buttonclicked(&go);
+				}
+
 
 			}
 			}
 		}
 
-		if (Speed != 900)		// 速度为 900 时，为按任意键单步执行
+		if (!isStep) {	// 速度为 900 时，为按任意键单步执行
+			clearrectangle(go.x, go.y, go.x + go.w, go.y + go.h);
 			Sleep(Speed);
+		}
 	}
 
 END:
@@ -148,7 +173,6 @@ void Init()
 	SetWorkingImage(&imgEmpty);
 	setcolor(DARKGRAY);
 	rectangle(0, 0, POINTSIZE, POINTSIZE);
-
 	// 恢复对默认窗口的绘图
 	SetWorkingImage(NULL);
 
@@ -270,4 +294,20 @@ void func_pause(BUTTON* p) {
 	}
 	p->paint();
 	isPause = isPause ? false : true;
+}
+
+void func_step(BUTTON* p) {
+	if (isStep) {
+		p->text = _T("单步");
+	}
+	else {
+		p->text = _T("自动");
+	}
+	p->paint();
+	isStep = isStep ? false : true;
+}
+
+void func_go(BUTTON* p) {
+	Evolution();			// 进化
+	PaintWorld();			// 绘制世界
 }
