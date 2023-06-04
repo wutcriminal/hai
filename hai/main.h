@@ -47,7 +47,7 @@ public:
 	WORLD();
 	void SquareWorld();				// 创建一个细胞以方形分布的世界
 	void RandWorld();				// 创建一个细胞随机分布的世界
-	void PaintWorld();				// 绘制世界
+	int PaintWorld();				// 绘制世界
 	void Evolution();				// 进化
 };
 

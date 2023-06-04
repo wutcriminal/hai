@@ -1,5 +1,9 @@
 #include"main.h"
+#define GTEST_LANG_CXX11 1
 
+#pragma comment(lib, "googletest_v141.lib")
+
+#include "gtest/gtest.h"
 
 
 WORLD::WORLD()
@@ -57,11 +61,12 @@ void WORLD::RandWorld()
 }
 
 // 绘制世界
-void WORLD::PaintWorld()
+int WORLD::PaintWorld()
 {
 	for (int x = 1; x < WORLDSIZE - 1; x++)
 		for (int y = 1; y < WORLDSIZE - 1; y++)
 			putimage(APEX[0] + x * INTERVAL, APEX[1] + y * INTERVAL, world[x][y] ? &imgLive : &imgEmpty);
+	return 1;
 }
 
 // 进化
@@ -81,9 +86,9 @@ void WORLD::Evolution()
 			// 计算当前位置的生命状态
 			switch (sum)
 			{
-			case 3:		tmp[x][y] = 1;				break;
-			case 2:		tmp[x][y] = world[x][y];	break;
-			default:	tmp[x][y] = 0;				break;
+			case 3:		tmp[x][y] = 1;			    SUCCEED(); break;
+			case 2:		tmp[x][y] = world[x][y];	SUCCEED(); break;
+			default:	tmp[x][y] = 0;				SUCCEED(); break;
 			}
 		}
 	}

@@ -14,7 +14,12 @@ TEST(BUTTONTest, BTest) {
 
 TEST(WORLDTest,WTest) {
     WORLD wld;
+    EXPECT_EQ(wld.PaintWorld(), 1);
+}
 
+TEST(EVOTest,ETest) {
+    WORLD wld;
+    wld.Evolution();
 }
 
 
